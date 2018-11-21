@@ -48,7 +48,13 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            tv_result.setText(msg.obj.toString());
+            if (msg.obj instanceof ResultBean) {
+                ResultBean resultBean = (ResultBean) msg.obj;
+                tv_result.setText(resultBean.toString());
+            } else {
+                tv_result.setText("" + msg.obj);
+            }
+
         }
     };
 }

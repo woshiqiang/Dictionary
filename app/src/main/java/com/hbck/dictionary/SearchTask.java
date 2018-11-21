@@ -4,10 +4,13 @@ import android.os.AsyncTask;
 import android.os.Message;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 /**
  * @Date 2018-11-21.
@@ -25,12 +28,19 @@ public class SearchTask extends AsyncTask<String, String, String> {
     protected String doInBackground(String... strings) {
         String result = "";
         try {
+            //地址 中文转码 为UTF-8格式
+//            String keyWord = URLEncoder.encode(strings[0], "UTF-8");
+            String keyWord = URLEncoder.encode(strings[0], "utf-8");
+            Log.d(TAG, keyWord);
+            String strUrl = BASE_URL + keyWord;
+            Log.d(TAG, strUrl);
             // 新建一个URL对象
-            URL url = new URL(BASE_URL + strings[0]);
+            URL url = new URL(strUrl);
+
             // 打开一个HttpURLConnection连接
             HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
             // 设置连接主机超时时间
-            urlConn.setConnectTimeout(5 * 1000);
+//            urlConn.setConnectTimeout(5 * 1000);
             // 设置为GET请求
             urlConn.setRequestMethod("GET");
             // 开始连接
@@ -56,7 +66,13 @@ public class SearchTask extends AsyncTask<String, String, String> {
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
-        msg.obj = s;
+        try {
+            Gson gson = new Gson();
+            ResultBean resultBean = gson.fromJson(s, ResultBean.class);
+            msg.obj = resultBean;
+        } catch (Exception e) {
+            msg.obj = s;
+        }
         msg.sendToTarget();
     }
 
